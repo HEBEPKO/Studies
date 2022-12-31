@@ -1,0 +1,22 @@
+:root {
+  --my-green: #a2ed52;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.exsample {
+  color: var(--my-green);
+  margin: 0;
+  padding: 0 50px;
+  font-size: 30px;
+}
+.title {
+  margin: 0;
+  font-style: italic;
+  font-size: 25px;
+  color: yellowgreen;
+}
