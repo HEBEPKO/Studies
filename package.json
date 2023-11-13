@@ -1,0 +1,19 @@
+{
+  "name": "student",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Neverko Aliaksei",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HEBEPKO/Studies.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HEBEPKO/Studies/issues"
+  },
+  "homepage": "https://github.com/HEBEPKO/Studies#readme"
+}
