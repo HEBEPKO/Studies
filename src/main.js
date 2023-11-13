@@ -37,9 +37,13 @@ const $thBirthDay = document.createElement("th");
 const $thFaculty = document.createElement("th");
 const $thYear = document.createElement("th");
 const $tbody = document.createElement("tbody");
+const $btnAddStudent = document.createElement("button");
 
 let column = "id";
 let columnDir = false;
+
+$btnAddStudent.classList.add("btn", "btn__add", "mb-3", "btn-primary");
+$btnAddStudent.textContent = "Добавить студента";
 
 $section.classList.add("section", "container");
 $table.classList.add("table", "table-bordered", "border-primary");
@@ -80,8 +84,168 @@ $caption.textContent = "Список студентов";
 $tr.append($thSerialNum, $thFullName, $thFaculty, $thBirthDay, $thYear);
 $thead.append($tr);
 $table.append($thead, $tbody, $caption);
-$section.append(createStudentForm().$form, $table);
+$section.append($btnAddStudent, $table);
 main.append($section);
+
+// форма во всплавающем окне
+document.querySelector(".btn__add").addEventListener("click", function () {
+  const wrapper = createStudentForm().$wrapper;
+
+
+  document.body.append(wrapper);
+
+  setTimeout(function() {
+    wrapper.classList.add('open')
+  }, 1000)
+
+  // валидация
+  function validation(form) {
+    let result = true;
+    
+
+    const allInputs = form.querySelectorAll(".form__inp");
+
+    for (const input of allInputs) {
+
+      let value = input.value.trim();
+      delError(input);
+
+      if (input.dataset.minLength) {
+        if (value.length < input.dataset.minLength) {
+          delError(input);
+          getError(input, `Введите не мение ${input.value.length} символа(ов)`);
+          result = false;
+        } else {
+          delError(input);
+        }
+      }
+
+      if (input.dataset.maxLength) {
+        if (input.value.length > input.dataset.maxLength) {
+          delError(input);
+          getError(
+            input,
+            `Максимальное кол-во символов: ${input.dataset.maxLength}`
+          );
+          result = false;
+        }
+        if (
+          input.getAttribute("number") ||
+          input.value.length < input.dataset.maxLength
+        ) {
+          delError(input);
+          getError(input, `Введите вего ${input.dataset.maxLength} символов`);
+          result = false;
+        }
+      }
+
+      if (input.dataset.required == "true") {
+        if (input.value == "") {
+          delError(input);
+          getError(input, `${input.placeholder}`);
+          result = false;
+        }
+      }
+
+      input.addEventListener("input", function () {
+        if (value.length > 0) {
+          delError(input);
+
+          if (input.dataset.minLength) {
+            if (value.length < input.dataset.minLength) {
+              delError(input);
+              getError(
+                input,
+                `Введите не мение ${input.value.length} символа(ов)`
+              );
+              if (
+                input.getAttribute("type") === "number" ||
+                value.length > input.dataset.minLength
+              ) {
+                delError(input);
+                getError(input, `Введите год поступления в формате "гггг"`);
+              }
+
+              result = false;
+            } else {
+              input.parentNode.classList.remove("error");
+              input.parentNode.classList.add("valid");
+              input.classList.add("_usccess");
+              delError(input);
+            }
+          }
+          if (input.dataset.maxLength) {
+            if (value.length > input.dataset.maxLength) {
+              delError(input);
+              getError(
+                input,
+                `Максимальное кол-во символов: ${input.dataset.maxLength}`
+              );
+              if (input.getAttribute("type") === "number") {
+                delError(input);
+                getError(input, `Введите год поступления в формате "гггг"`);
+              }
+              if (
+                input.getAttribute("type") === "number" &&
+                value.length === input.dataset.maxLength
+              ) {
+                delError(input);
+                getError(input, `Введите год поступления в формате "гггг"`);
+              }
+              result = false;
+            }
+          } else {
+            input.parentNode.classList.remove("error");
+            input.parentNode.classList.add("valid");
+            input.classList.add("_usccess");
+            delError(input);
+          }
+        }
+      });
+    }
+    return result;
+  }
+  
+  // отправка формы студента
+  document
+    .getElementById("add-form")
+    .addEventListener("submit", async function (event) {
+      event.preventDefault();
+      
+      if (validation(this) === true) {
+        let newStudentObj = {
+          name: ucFirst(document.getElementById("name-inp").value),
+          lastname: ucFirst(document.getElementById("lastname-inp").value),
+          surname: ucFirst(document.getElementById("surname-inp").value),
+          birthday: new Date(document.getElementById("birthday-inp").value),
+          faculty: ucFirst(document.getElementById("faculty-inp").value),
+          studystart: document.getElementById("studystart-inp").value,
+        };
+
+        studentsList.push(newStudentObj);
+
+        this.querySelectorAll(".form__inp").forEach(function (e) {
+          e.value = "";
+          e.parentNode.classList.remove("valid");
+          e.classList.remove("_success");
+        });
+
+        wrapper.classList.remove('open')
+        setTimeout(function() {
+          
+          wrapper.remove()
+        }, 1000)
+        
+      }
+
+      
+
+      render();
+    });
+    return studentsList
+});
+
+console.log(studentsList);
 
 // клик по шапке таблицы
 const $studentThall = document.querySelectorAll(".th");
@@ -104,6 +268,7 @@ function sortArr(arr, prop, dir) {
 
 // создание формы для добавления студента
 function createStudentForm() {
+  const $wrapper = document.createElement("div");
   const $form = document.createElement("form");
   const $blockLastName = document.createElement("div");
   const $inpLastName = document.createElement("input");
@@ -122,6 +287,8 @@ function createStudentForm() {
   const $buttonWrapper = document.createElement("div");
   const $btn = document.createElement("button");
 
+  $wrapper.classList.add('wrapper')
+
   $form.classList.add("input-group", "mb-3", "form");
   $form.setAttribute("id", "add-form");
   $form.setAttribute("action", "#");
@@ -138,6 +305,7 @@ function createStudentForm() {
 
   $blocktName.classList.add("mb-4", "block");
   $blocktName.setAttribute("id", "block-name");
+
   $inpName.classList.add("form-control", "border-primary", "form__inp");
   $inpName.placeholder = "Введите имя студента";
   $inpName.setAttribute("type", "text");
@@ -218,9 +386,11 @@ function createStudentForm() {
     $blockStudyStart,
     $buttonWrapper
   );
+  $wrapper.append($form)
 
   return {
     $form,
+    $wrapper
   };
 }
 
@@ -311,21 +481,6 @@ function student(studentObj) {
   return $tr;
 }
 
-function render() {
-  let copyArr = [...newListStudent(studentsList)];
-
-  copyArr = sortArr(copyArr, column, columnDir);
-  
-
-  $tbody.innerHTML = "";
-  for (const studentObj of copyArr) {
-    const $studentTr = student(studentObj);
-    $tbody.append($studentTr);
-  }
-}
-
-render();
-
 // добовление блока подсказки при валидации
 function getError(block, text) {
   let blockInp = block.getAttribute("id"),
@@ -367,144 +522,32 @@ function clearInp(block) {
   });
 }
 
-// валидация
-function validation(form) {
-  let result = true;
-
-  const allInputs = form.querySelectorAll(".form__inp");
-
-  for (const input of allInputs) {
-    delError(input);
-
-    console.log(input.getAttribute("type"));
-
-    if (input.dataset.minLength) {
-      if (input.value.length < input.dataset.minLength) {
-        delError(input);
-        getError(input, `Введите не мение ${input.value.length} символа(ов)`);
-        result = false;
-      } else {
-        delError(input);
-      }
-    }
-
-    if (input.dataset.maxLength) {
-      if (input.value.length > input.dataset.maxLength) {
-        delError(input);
-        getError(
-          input,
-          `Максимальное кол-во символов: ${input.dataset.maxLength}`
-        );
-        result = false;
-      }
-      if (
-        input.getAttribute("number") ||
-        input.value.length < input.dataset.maxLength
-      ) {
-        delError(input);
-        getError(input, `Введите вего ${input.dataset.maxLength} символов`);
-        result = false;
-      }
-    }
-
-    if (input.dataset.required == "true") {
-      if (input.value == "") {
-        delError(input);
-        getError(input, `${input.placeholder}`);
-        result = false;
-      }
-    }
-
-    input.addEventListener("input", function () {
-      let value = input.value.trim();
-
-      if (value.length > 0) {
-        delError(input);
-
-        if (input.dataset.minLength) {
-          if (value.length < input.dataset.minLength) {
-            delError(input);
-            getError(
-              input,
-              `Введите не мение ${input.value.length} символа(ов)`
-            );
-            if (
-              input.getAttribute("type") === "number" ||
-              value.length > input.dataset.minLength
-            ) {
-              delError(input);
-              getError(input, `Введите год поступления в формате "гггг"`);
-            }
-
-            result = false;
-          } else {
-            input.parentNode.classList.remove("error");
-            input.parentNode.classList.add("valid");
-            input.classList.add("_usccess");
-            delError(input);
-          }
-
-          if (input.dataset.maxLength) {
-            if (value.length > input.dataset.maxLength) {
-              delError(input);
-              getError(
-                input,
-                `Максимальное кол-во символов: ${input.dataset.maxLength}`
-              );
-              if (input.getAttribute("type") === "number") {
-                delError(input);
-                getError(input, `Введите год поступления в формате "гггг"`);
-              }
-              if (
-                input.getAttribute("type") === "number" &&
-                value.length === input.dataset.maxLength
-              ) {
-                delError(input);
-                getError(input, `Введите год поступления в формате "гггг"`);
-              }
-              result = false;
-            }
-          }
-        }
-      }
-    });
+// филитрация массива
+function filtrArray(arr, prop, value) {
+  let result = [];
+  let copyArr = [...arr];
+  for (const item of copyArr) {
+    if (String(item[prop]).includes(value) === true) result.push(item);
   }
   return result;
 }
 
-// филитрация массива
-function filtrArray(arr, prop, value) {
-  let result = []
-  let copyArr = [...arr]
-  for (const item of copyArr) {
-    if(String(item[prop]).includes(value) === true) result.push(item)
+// отрисовка
+function render() {
+  let copyArr = [...newListStudent(studentsList)];
+
+  copyArr = sortArr(copyArr, column, columnDir);
+  // const
+  console.log(copyArr);
+
+  // copyArr = filtrArray(copyArr, "fullname", "лекс");
+  // console.log(copyArr);
+
+  $tbody.innerHTML = "";
+  for (const studentObj of copyArr) {
+    const $studentTr = student(studentObj);
+    $tbody.append($studentTr);
   }
-  return result
 }
 
-document
-  .getElementById("add-form")
-  .addEventListener("submit", async function (event) {
-    event.preventDefault();
-
-    if (validation(this) === true) {
-      let newStudentObj = {
-        name: ucFirst(document.getElementById("name-inp").value),
-        lastname: ucFirst(document.getElementById("lastname-inp").value),
-        surname: ucFirst(document.getElementById("surname-inp").value),
-        birthday: new Date(document.getElementById("birthday-inp").value),
-        faculty: ucFirst(document.getElementById("faculty-inp").value),
-        studystart: document.getElementById("studystart-inp").value,
-      };
-
-      studentsList.push(newStudentObj);
-
-      this.querySelectorAll(".form__inp").forEach(function (e) {
-        e.value = "";
-        e.parentNode.classList.remove("valid");
-        e.classList.remove("_success");
-      });
-    }
-
-    render();
-  });
+render();

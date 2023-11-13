@@ -29,8 +29,28 @@ body {
   padding: 25px;
 }
 
+.wrapper {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 0;
+  top: 0;
+  transform: translateX(-150%);
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease-in-out;
+  background-color: rgba( 0, 0, 0, 0.85);
+}
+
+.open {
+  transform: translateX(0);
+}
+
 .form {
+  margin: 0 auto;
   flex-direction: column;
+  width: 50%;
 }
 
 .form > .form__inp {
@@ -40,10 +60,6 @@ body {
 .form__inp {
   position: relative;
   transition: background-color 0.8s ease-in-out;
-}
-
-.block {
-  position: relative;
 }
 
 .block::before {
@@ -112,9 +128,19 @@ body {
   flex-direction: column-reverse;
 }
 
+.form-label {
+  color: white;
+}
+
 .span-error {
   position: absolute;
   left: 15px;
   bottom: -21px;
+}
+
+.btn__add {
+  display: block;
+  margin: 0 auto;
+  margin-bottom: ;
 }
 
